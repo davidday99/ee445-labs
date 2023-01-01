@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include "PLL.h"
 #include "UART.h"
+#include "ADC.h"
 #include "tm4c123gh6pm.h"
 
 #define BUFSIZE 256
@@ -56,9 +57,15 @@ int main(void){
   UART_Init();              // initialize UART
   UART_OutString("Hello, world!\n");
   OutCRLF();
+
+  ADC_Open(CHANNEL11); 
+
+  uint16_t x;
   while(1){
     input("> ");
     UART_OutString(InputBuf); 
+    x = ADC_In();
+    UART_OutUDec(x);
     OutCRLF();
   }
 }
