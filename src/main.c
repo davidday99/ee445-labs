@@ -27,10 +27,11 @@
 // U0Tx (VCP transmit) connected to PA1
 
 #include <stdint.h>
+#include "tm4c123gh6pm.h"
 #include "PLL.h"
 #include "UART.h"
 #include "ADC.h"
-#include "tm4c123gh6pm.h"
+#include "ST7735.h"
 
 #define BUFSIZE 256
 
@@ -56,6 +57,8 @@ int main(void){
   PLL_Init(Bus50MHz);       // set system clock to 50 MHz
   UART_Init();              // initialize UART
   UART_OutString("Hello, world!\n");
+  ST7735_InitR(INITR_REDTAB);
+  ST7735_OutString("Hello, world!\n");
   OutCRLF();
 
   ADC_Open(CHANNEL11); 
