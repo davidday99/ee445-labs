@@ -42,36 +42,36 @@ static char InputBuf[BUFSIZE];
 // Input: none
 // Output: none
 void OutCRLF(void){
-  UART_OutChar(CR);
-  UART_OutChar(LF);
+    UART_OutChar(CR);
+    UART_OutChar(LF);
 }
 
 void input(char *prompt) {
-  UART_OutString(prompt);
-  UART_InString(InputBuf, BUFSIZE);
-  OutCRLF();
+    UART_OutString(prompt);
+    UART_InString(InputBuf, BUFSIZE);
+    OutCRLF();
 }
 
 //debug code
 int main(void){
-  PLL_Init(Bus50MHz);       // set system clock to 50 MHz
-  UART_Init();              // initialize UART
-  UART_OutString("Hello, world!\n");
-  ST7735_InitR(INITR_GREENTAB);
-  ST7735_OutString("Hello, world!\n");
-  OutCRLF();
-
-
-
-  ADC_Open(CHANNEL11); 
-
-  uint16_t x;
-  while(1){
-    input("> ");
-    UART_OutString(InputBuf); 
-    x = ADC_In();
-    UART_OutUDec(x);
+    PLL_Init(Bus50MHz);       // set system clock to 50 MHz
+    UART_Init();              // initialize UART
+    ST7735_InitR(INITR_GREENTAB);
+    UART_OutString("Hello, world!\n");
+    // ST7735_OutString("Hello, world!\n");
     OutCRLF();
-  }
+
+
+
+    ADC_Open(CHANNEL11); 
+
+    uint16_t x;
+    while(1){
+        input("> ");
+        UART_OutString(InputBuf); 
+        x = ADC_In();
+        UART_OutUDec(x);
+        OutCRLF();
+    }
 }
 
