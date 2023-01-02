@@ -425,6 +425,8 @@ void ST7735_OutChar(char ch);
 // outputs: none
 void ST7735_OutString(char *ptr);
 
+void ST7735_Message(int device, int line, char *string, int32_t value);
+
 // ************** ST7735_SetTextColor ************************
 // Sets the color in which the characters will be printed
 // Background color is fixed at black

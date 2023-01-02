@@ -223,6 +223,8 @@ uint16_t StTextColor = ST7735_YELLOW;
 #define ST7735_GMCTRP1 0xE0
 #define ST7735_GMCTRN1 0xE1
 
+#define VIRTUAL_DISPLAY_COUNT 4
+
 // standard ascii 5x7 font
 // originally from glcdfont.c from Adafruit project
 static const uint8_t Font[] = {
@@ -483,6 +485,17 @@ static const uint8_t Font[] = {
   0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
+typedef struct _vd {
+    int currX;
+    int currY;
+    const int startX;
+    const int endX;
+    const int startY;
+    const int endY;
+} VirtualDisplay;
+
+static VirtualDisplay Top = {0, 0, 0, 20, 0, 7}; 
+static VirtualDisplay Bottom = {0, 0, 0, 20, 8, 15}; 
 
 static uint8_t ColStart, RowStart; // some displays need this changed
 static uint8_t Rotation;           // 0 to 3
@@ -704,8 +717,7 @@ static void commandList(const uint8_t *addr) {
 
 // Initialization code common to both 'B' and 'R' type displays
 static void commonInit(const uint8_t *cmdList) {
-  volatile uint32_t delay;
-  ColStart  = RowStart = 0; // May be overridden in init func
+  ColStart = RowStart = 0; // May be overridden in init func
 
   SYSCTL_RCGCSSI_R |= 0x01;  // activate SSI0
   SYSCTL_RCGCGPIO_R |= 0x01; // activate port A
@@ -1555,6 +1567,34 @@ void ST7735_OutString(char *ptr){
     ptr = ptr + 1;
   }
 }
+
+
+//********ST7735_Message*****************
+// Print a string of characters to the ST7735 LCD virtual display.
+// Position determined by ST7735_SetCursor command
+// Color set by ST7735_SetTextColor
+// The string will not automatically wrap.
+// inputs: device   virtual display
+//         line     line number to output, modulo virtual display size
+//         string   pointer to NULL-terminated ASCII string
+//         value    number to display 
+//          
+// outputs: none
+void ST7735_Message(int device, int line, char *string, int32_t value) {
+    int rowStart;
+    if (device == 0) {
+       rowStart = Top.startY; 
+    } else if (device == 1) {
+        rowStart = Bottom.startY;
+    } else {
+        return;
+    } 
+    ST7735_SetCursor(0, rowStart + line); 
+    ST7735_OutString(string);
+    ST7735_OutUDec(value);
+} 
+
+
 // ************** ST7735_SetTextColor ************************
 // Sets the color in which the characters will be printed
 // Background color is fixed at black
