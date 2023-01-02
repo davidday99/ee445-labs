@@ -175,7 +175,7 @@ uint16_t StTextColor = ST7735_YELLOW;
 #define SYSCTL_RCGC1_SSI0       0x00000010  // SSI0 Clock Gating Control
 #define SYSCTL_RCGC2_GPIOA      0x00000001  // port A Clock Gating Control
 #define ST7735_TFTWIDTH  128
-#define ST7735_TFTHEIGHT 128 
+#define ST7735_TFTHEIGHT 160 
 
 #define ST7735_NOP     0x00
 #define ST7735_SWRESET 0x01
@@ -777,7 +777,7 @@ void ST7735_InitR(enum initRFlags option) {
   if(option == INITR_GREENTAB) {
     commandList(Rcmd2green);
     ColStart = 2;
-    RowStart = 1;
+    RowStart = 3;
   } else {
     // colstart, rowstart left at default '0' values
     commandList(Rcmd2red);
