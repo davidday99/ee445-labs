@@ -31,6 +31,15 @@
 #define ADC_CHANNEL11_PORT_M    PORTB_MASK 
 #define ADC_CHANNEL11_PIN_M     0x00000020 
 
+#define NVIC_EN0_INT23 0x800000 
+
+static unsigned char ConversionInProgress;
+static uint16_t *SampleBuf;
+static uint32_t SampleBufIndex;
+static uint32_t NumberOfSamples;
+
+static void Init_Timer(uint32_t freq);
+static void Start_Timer(void);
 static int Init_Channel(enum ADC_Channel channelNum);
 
 int ADC_Open(uint32_t channelNum) {
@@ -52,7 +61,7 @@ int ADC_Open(uint32_t channelNum) {
     return 1;
 }
 
-uint16_t ADC_In(void ) {
+uint16_t ADC_In(void) {
   uint32_t result;
   ADC0_PSSI_R = 0x0008;            // 1) initiate SS3
   while((ADC0_RIS_R&0x08)==0)      // 2) wait for conversion done
@@ -61,6 +70,51 @@ uint16_t ADC_In(void ) {
   result = ADC0_SSFIFO3_R & 0xFFF;   // 3) read result
   ADC0_ISC_R = 0x0008;             // 4) acknowledge completion
   return result;
+}
+
+int ADC_Collect(uint32_t channelNum, uint32_t fs,
+        uint16_t buffer[], uint32_t numberOfSamples) {
+    ADC_Open(channelNum);
+    SampleBuf = buffer;
+    SampleBufIndex = 0;
+    NumberOfSamples = numberOfSamples;
+    Init_Timer(fs);
+    ConversionInProgress = 1;
+    Start_Timer(); 
+    return 1;
+}
+
+void Timer2A_Handler(void) {
+    // if SampleBufIndex >= NumberOfSamples
+    //   disable timer
+    //   set ConversionInProgress to 0
+    // else
+    //   SampleBuf[SampleBufIndex++] = ADC sample
+    static int counter;
+    counter += 1;
+    TIMER2_IMR_R &= ~1;  // disable timeout interrupt
+    TIMER2_ICR_R |= 1;   // clear timeout interrupt 
+    return;
+}
+
+int ADC_Status(void) {
+    return ConversionInProgress;
+}
+
+static void Init_Timer(uint32_t freq) {
+    SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCWTIMER_R2;
+    TIMER2_CTL_R &= ~1;  // disable timer A
+    TIMER2_CFG_R &= ~7;  // clear CFG register
+    TIMER2_TAMR_R = 2;  // enable periodic timer mode
+    TIMER2_TAILR_R = freq;
+    TIMER2_ICR_R |= 1;  // clear timeout interrupt
+    TIMER2_IMR_R |= 1;  // enable timeout interrupt
+    NVIC_EN0_R |= NVIC_EN0_INT23; 
+    return;
+}
+
+static void Start_Timer(void) {
+    TIMER2_CTL_R |= 1;
 }
 
 static int Init_Channel(enum ADC_Channel channelNum) {

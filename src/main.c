@@ -16,12 +16,9 @@ int main(void){
     Interpreter_Init();
     ST7735_InitR(INITR_GREENTAB);
 
-    ST7735_Message(0, 0, "Hello, world!", 0);
-    ST7735_Message(1, 0, "Hello, world!", 0);
-    ST7735_Message(1, 1, "Hello, world!", 0);
-    ST7735_Message(0, 1, "Hello, world!", 0);
+    uint16_t buf[100];
 
-    ADC_Open(CHANNEL11); 
+    ADC_Collect(CHANNEL11, 10000, buf, 100);
 
     while(1){
         Interpreter_Input("> ");
