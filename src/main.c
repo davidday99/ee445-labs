@@ -7,21 +7,27 @@
 #include <stdint.h>
 #include "PLL.h"
 #include "ADC.h"
+#include "UART.h"
 #include "ST7735.h"
 #include "interpreter.h"
+#include "OS.h"
 
 //debug code
 int main(void){
-    PLL_Init(Bus50MHz);       // set system clock to 50 MHz
+    PLL_Init(Bus80MHz);       // set system clock to 80 MHz
     Interpreter_Init();
     ST7735_InitR(INITR_GREENTAB);
+    OS_InitSysTime();
 
     uint16_t buf[100];
 
-    ADC_Collect(CHANNEL11, 10000, buf, 100);
+    /*ADC_Collect(CHANNEL11, 10000, buf, 100);*/
 
     while(1){
         Interpreter_Input("> ");
+        UART_OutUDec(OS_ReadPeriodicTime());
+        UART_OutChar(CR);
+        UART_OutChar(LF);
     }
 }
 
