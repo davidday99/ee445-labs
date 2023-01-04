@@ -1575,7 +1575,7 @@ void ST7735_OutString(char *ptr){
 // Color set by ST7735_SetTextColor
 // The string will not automatically wrap.
 // inputs: device   virtual display
-//         line     line number to output, modulo virtual display size
+//         line     line number at which to output
 //         string   pointer to NULL-terminated ASCII string
 //         value    number to display 
 //          
