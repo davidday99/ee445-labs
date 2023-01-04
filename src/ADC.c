@@ -42,7 +42,7 @@ static uint32_t NumberOfSamples;
 static void StartTimer(uint32_t freq);
 static int InitChannel(enum ADC_Channel channelNum);
 
-static int InitADCTimerTriggered(enum ADC_Channel channelNum) {
+static int InitADCTimerTriggeredSeq0(enum ADC_Channel channelNum) {
     SYSCTL_RCGCADC_R |= 0x0001;     // 0) activate ADC0 
     if (!InitChannel(channelNum))
         return 0;
@@ -85,7 +85,7 @@ uint16_t ADC_In(void) {
   ADC0_PSSI_R = 0x0008;            // 1) initiate SS3
   while((ADC0_RIS_R&0x08)==0)      // 2) wait for conversion done
       ;   
-    // if you have an A0-A3 revision number, you need to add an 8 usec wait here
+  // if you have an A0-A3 revision number, you need to add an 8 usec wait here
   result = ADC0_SSFIFO3_R & 0xFFF;   // 3) read result
   ADC0_ISC_R = 0x0008;             // 4) acknowledge completion
   return result;
@@ -94,7 +94,7 @@ uint16_t ADC_In(void) {
 int ADC_Collect(uint32_t channelNum, uint32_t fs,
         uint16_t buffer[], uint32_t numberOfSamples) {
     DebugTools_Init();
-    if (InitADCTimerTriggered(channelNum) || fs == 0)
+    if (InitADCTimerTriggeredSeq0(channelNum) || fs == 0)
         return 0;
     SampleBuf = buffer;
     SampleBufIndex = 0;
@@ -108,6 +108,10 @@ int ADC_Status(void) {
     return ConversionInProgress;
 }
 
+
+// *************** ADC0Sequence0_Handler ********************
+// ISR that runs each time timer trigger occurs 
+// during ADC_Collect.
 void ADC0Sequence0_Handler(void) {
     ADC0_ISC_R = 1;
     if (SampleBufIndex >= NumberOfSamples) {
