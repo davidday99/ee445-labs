@@ -20,14 +20,10 @@ void OS_InitSysTime(void) {
     NVIC_ST_RELOAD_R = SYSTICK_RELOAD;
     NVIC_EN0_R |= NVIC_EN0_INT15;  // enable SysTick interrupt in NVIC
     NVIC_ST_CTRL_R |= 7;  // enable clock with interrupts, clk src is sys clock
-
-    DebugTools_Init();
 }
 
 void SysTick_Handler(void) {
-    DEBUGPIN_HIGH();
     SysTimeMicroSeconds++;
-    DEBUGPIN_LOW();
 }
 
 void OS_ClearPeriodicTime(void) {

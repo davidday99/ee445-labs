@@ -93,7 +93,6 @@ uint16_t ADC_In(void) {
 
 int ADC_Collect(uint32_t channelNum, uint32_t fs,
         uint16_t buffer[], uint32_t numberOfSamples) {
-    DebugTools_Init();
     if (InitADCTimerTriggeredSeq0(channelNum) || fs == 0)
         return 0;
     SampleBuf = buffer;
@@ -108,7 +107,6 @@ int ADC_Status(void) {
     return ConversionInProgress;
 }
 
-
 // *************** ADC0Sequence0_Handler ********************
 // ISR that runs each time timer trigger occurs 
 // during ADC_Collect.
@@ -122,16 +120,6 @@ void ADC0Sequence0_Handler(void) {
     } else {
         SampleBuf[SampleBufIndex++] = ADC0_SSFIFO0_R & 0xFFF;
     }
-}
-
-static void StartTimer(uint32_t freq) {
-    SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R2;
-    TIMER2_CTL_R &= ~1;  // disable timer A
-    TIMER2_CTL_R |= 0x20;  // enable ADC trigger
-    TIMER2_CFG_R = (TIMER2_CFG_R & ~7);  // use 32-bit timer
-    TIMER2_TAMR_R = 2;  // enable periodic timer mode
-    TIMER2_TAILR_R = 80000000 / freq;
-    TIMER2_CTL_R |= 3;
 }
 
 static int InitChannel(enum ADC_Channel channelNum) {
@@ -235,5 +223,15 @@ static int InitChannel(enum ADC_Channel channelNum) {
     *portDenReg |= channelPin; 
     *portAmselReg |= channelPin; 
     return 1; 
+}
+
+static void StartTimer(uint32_t freq) {
+    SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R2;
+    TIMER2_CTL_R &= ~1;  // disable timer A
+    TIMER2_CTL_R |= 0x20;  // enable ADC trigger
+    TIMER2_CFG_R = (TIMER2_CFG_R & ~7);  // use 32-bit timer
+    TIMER2_TAMR_R = 2;  // enable periodic timer mode
+    TIMER2_TAILR_R = 80000000 / freq;
+    TIMER2_CTL_R |= 3;
 }
 
