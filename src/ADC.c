@@ -143,28 +143,28 @@ static int InitChannel(enum ADC_Channel channelNum) {
     uint32_t channelPin;
 
     switch (channelNum) {
-        case CHANNEL0:
-        case CHANNEL1:
-        case CHANNEL2:
-        case CHANNEL3:
-        case CHANNEL8:
-        case CHANNEL9:
+        case ADC_CHANNEL0:
+        case ADC_CHANNEL1:
+        case ADC_CHANNEL2:
+        case ADC_CHANNEL3:
+        case ADC_CHANNEL8:
+        case ADC_CHANNEL9:
             portDirReg = &GPIO_PORTE_DIR_R;
             portAfselReg = &GPIO_PORTE_AFSEL_R;
             portDenReg = &GPIO_PORTE_DEN_R;
             portAmselReg = &GPIO_PORTE_AMSEL_R;
             break;
-        case CHANNEL4:
-        case CHANNEL5:
-        case CHANNEL6:
-        case CHANNEL7:
+        case ADC_CHANNEL4:
+        case ADC_CHANNEL5:
+        case ADC_CHANNEL6:
+        case ADC_CHANNEL7:
             portDirReg = &GPIO_PORTD_DIR_R;
             portAfselReg = &GPIO_PORTD_AFSEL_R;
             portDenReg = &GPIO_PORTD_DEN_R;
             portAmselReg = &GPIO_PORTD_AMSEL_R;
             break;
-        case CHANNEL10:
-        case CHANNEL11:
+        case ADC_CHANNEL10:
+        case ADC_CHANNEL11:
             portDirReg = &GPIO_PORTB_DIR_R;
             portAfselReg = &GPIO_PORTB_AFSEL_R;
             portDenReg = &GPIO_PORTB_DEN_R;
@@ -175,51 +175,51 @@ static int InitChannel(enum ADC_Channel channelNum) {
     } 
     
     switch (channelNum) {
-        case CHANNEL0:
+        case ADC_CHANNEL0:
             channelPort = ADC_CHANNEL0_PORT_M;
             channelPin = ADC_CHANNEL0_PIN_M;
             break;
-        case CHANNEL1:
+        case ADC_CHANNEL1:
             channelPort = ADC_CHANNEL1_PORT_M;
             channelPin = ADC_CHANNEL1_PIN_M;
             break;
-        case CHANNEL2:
+        case ADC_CHANNEL2:
             channelPort = ADC_CHANNEL2_PORT_M;
             channelPin = ADC_CHANNEL2_PIN_M;
             break;
-        case CHANNEL3:
+        case ADC_CHANNEL3:
             channelPort = ADC_CHANNEL3_PORT_M;
             channelPin = ADC_CHANNEL3_PIN_M;
             break;
-        case CHANNEL4:
+        case ADC_CHANNEL4:
             channelPort = ADC_CHANNEL4_PORT_M;
             channelPin = ADC_CHANNEL4_PIN_M;
             break;
-        case CHANNEL5:
+        case ADC_CHANNEL5:
             channelPort = ADC_CHANNEL5_PORT_M;
             channelPin = ADC_CHANNEL5_PIN_M;
             break;
-        case CHANNEL6:
+        case ADC_CHANNEL6:
             channelPort = ADC_CHANNEL6_PORT_M;
             channelPin = ADC_CHANNEL6_PIN_M;
             break;
-        case CHANNEL7:
+        case ADC_CHANNEL7:
             channelPort = ADC_CHANNEL7_PORT_M;
             channelPin = ADC_CHANNEL7_PIN_M;
             break;
-        case CHANNEL8:
+        case ADC_CHANNEL8:
             channelPort = ADC_CHANNEL8_PORT_M;
             channelPin = ADC_CHANNEL8_PIN_M;
             break;
-        case CHANNEL9:
+        case ADC_CHANNEL9:
             channelPort = ADC_CHANNEL9_PORT_M;
             channelPin = ADC_CHANNEL9_PIN_M;
             break;
-        case CHANNEL10:
+        case ADC_CHANNEL10:
             channelPort = ADC_CHANNEL10_PORT_M;
             channelPin = ADC_CHANNEL10_PIN_M;
             break;
-        case CHANNEL11:
+        case ADC_CHANNEL11:
             channelPort = ADC_CHANNEL11_PORT_M;
             channelPin = ADC_CHANNEL11_PIN_M;
             break;

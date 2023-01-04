@@ -10,18 +10,18 @@
 #include "tm4c123gh6pm.h"
 
 enum ADC_Channel {
-    CHANNEL0,
-    CHANNEL1,
-    CHANNEL2,
-    CHANNEL3,
-    CHANNEL4,
-    CHANNEL5,
-    CHANNEL6,
-    CHANNEL7,
-    CHANNEL8,
-    CHANNEL9,
-    CHANNEL10,
-    CHANNEL11,
+    ADC_CHANNEL0,
+    ADC_CHANNEL1,
+    ADC_CHANNEL2,
+    ADC_CHANNEL3,
+    ADC_CHANNEL4,
+    ADC_CHANNEL5,
+    ADC_CHANNEL6,
+    ADC_CHANNEL7,
+    ADC_CHANNEL8,
+    ADC_CHANNEL9,
+    ADC_CHANNEL10,
+    ADC_CHANNEL11,
 };
 
 // *************** ADC_Open ********************
