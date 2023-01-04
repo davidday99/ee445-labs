@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "ADC.h"
 #include "tm4c123gh6pm.h"
+#include "DebugTools.h"
 
 #define PORTE_MASK              0x00000010
 #define PORTD_MASK              0x00000008
@@ -31,20 +32,38 @@
 #define ADC_CHANNEL11_PORT_M    PORTB_MASK 
 #define ADC_CHANNEL11_PIN_M     0x00000020 
 
-#define NVIC_EN0_INT23 0x800000 
+#define NVIC_EN0_INT14 0x4000 
 
 static unsigned char ConversionInProgress;
 static uint16_t *SampleBuf;
 static uint32_t SampleBufIndex;
 static uint32_t NumberOfSamples;
 
-static void Init_Timer(uint32_t freq);
-static void Start_Timer(void);
-static int Init_Channel(enum ADC_Channel channelNum);
+static void StartTimer(uint32_t freq);
+static int InitChannel(enum ADC_Channel channelNum);
+
+static int InitADCTimerTriggered(enum ADC_Channel channelNum) {
+    SYSCTL_RCGCADC_R |= 0x0001;     // 0) activate ADC0 
+    if (!InitChannel(channelNum))
+        return 0;
+    while((SYSCTL_PRADC_R&0x0001) != 0x0001)
+        ;
+    ADC0_PC_R &= ~0xF;              // 7) clear max sample rate field
+    ADC0_PC_R |= 0x1;               //    configure for 125K samples/sec
+    ADC0_ACTSS_R &= ~0x0001;        // 9) disable sample sequencer 0
+    ADC0_EMUX_R = (ADC0_EMUX_R & ~0xF) | 0x5;         // 10) seq0 is timer triggered
+    ADC0_SSMUX0_R &= ~0x000F;       // 11) clear SS0 field
+    ADC0_SSMUX0_R += channelNum;    //    set channel
+    ADC0_SSCTL0_R = 0x0006;         // 12) no TS0 D0, yes IE0 END0
+    ADC0_IM_R |= 0x0001;            // 13) enable SS0 interrupts
+    ADC0_ACTSS_R |= 1;              // 14) enable SS0
+    NVIC_EN0_R |= NVIC_EN0_INT14;
+    return 1;
+}
 
 int ADC_Open(uint32_t channelNum) {
     SYSCTL_RCGCADC_R |= 0x0001;     // 0) activate ADC0 
-    if (!Init_Channel(channelNum))
+    if (!InitChannel(channelNum))
         return 0;
     while((SYSCTL_PRADC_R&0x0001) != 0x0001)
         ;
@@ -74,50 +93,44 @@ uint16_t ADC_In(void) {
 
 int ADC_Collect(uint32_t channelNum, uint32_t fs,
         uint16_t buffer[], uint32_t numberOfSamples) {
-    ADC_Open(channelNum);
+    DebugTools_Init();
+    if (InitADCTimerTriggered(channelNum) || fs == 0)
+        return 0;
     SampleBuf = buffer;
     SampleBufIndex = 0;
     NumberOfSamples = numberOfSamples;
-    Init_Timer(fs);
     ConversionInProgress = 1;
-    Start_Timer(); 
+    StartTimer(fs); 
     return 1;
-}
-
-void Timer2A_Handler(void) {
-    // if SampleBufIndex >= NumberOfSamples
-    //   disable timer
-    //   set ConversionInProgress to 0
-    // else
-    //   SampleBuf[SampleBufIndex++] = ADC sample
-    static int counter;
-    counter += 1;
-    TIMER2_IMR_R &= ~1;  // disable timeout interrupt
-    TIMER2_ICR_R |= 1;   // clear timeout interrupt 
-    return;
 }
 
 int ADC_Status(void) {
     return ConversionInProgress;
 }
 
-static void Init_Timer(uint32_t freq) {
-    SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCWTIMER_R2;
+void ADC0Sequence0_Handler(void) {
+    ADC0_ISC_R = 1;
+    if (SampleBufIndex >= NumberOfSamples) {
+        ADC0_IM_R &= ~1;
+        TIMER2_CTL_R &= ~1;
+        NVIC_EN0_R &= ~NVIC_EN0_INT14;
+        ConversionInProgress = 0;
+    } else {
+        SampleBuf[SampleBufIndex++] = ADC0_SSFIFO0_R & 0xFFF;
+    }
+}
+
+static void StartTimer(uint32_t freq) {
+    SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R2;
     TIMER2_CTL_R &= ~1;  // disable timer A
-    TIMER2_CFG_R &= ~7;  // clear CFG register
+    TIMER2_CTL_R |= 0x20;  // enable ADC trigger
+    TIMER2_CFG_R = (TIMER2_CFG_R & ~7);  // use 32-bit timer
     TIMER2_TAMR_R = 2;  // enable periodic timer mode
-    TIMER2_TAILR_R = freq;
-    TIMER2_ICR_R |= 1;  // clear timeout interrupt
-    TIMER2_IMR_R |= 1;  // enable timeout interrupt
-    NVIC_EN0_R |= NVIC_EN0_INT23; 
-    return;
+    TIMER2_TAILR_R = 80000000 / freq;
+    TIMER2_CTL_R |= 3;
 }
 
-static void Start_Timer(void) {
-    TIMER2_CTL_R |= 1;
-}
-
-static int Init_Channel(enum ADC_Channel channelNum) {
+static int InitChannel(enum ADC_Channel channelNum) {
     volatile uint32_t *portDirReg;
     volatile uint32_t *portAfselReg;
     volatile uint32_t *portDenReg;

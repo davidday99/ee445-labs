@@ -17,17 +17,21 @@ int main(void){
     PLL_Init(Bus80MHz);       // set system clock to 80 MHz
     Interpreter_Init();
     ST7735_InitR(INITR_GREENTAB);
-    OS_InitSysTime();
+    // OS_InitSysTime();
 
-    uint16_t buf[100];
+    uint16_t buf[1000];
 
-    /*ADC_Collect(CHANNEL11, 10000, buf, 100);*/
+    ADC_Collect(CHANNEL11, 1000, buf, 1000);
+
+    while (ADC_Status() != 0)
+        ;
+    ST7735_OutString("Done!");
 
     while(1){
         Interpreter_Input("> ");
-        UART_OutUDec(OS_ReadPeriodicTime());
-        UART_OutChar(CR);
-        UART_OutChar(LF);
+        /*UART_OutUDec(OS_ReadPeriodicTime());*/
+        /*UART_OutChar(CR);*/
+        /*UART_OutChar(LF);*/
     }
 }
 
