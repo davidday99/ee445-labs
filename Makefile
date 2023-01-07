@@ -2,11 +2,17 @@ PROJECT = main
 DEV = /dev/ttyACM0
 FLASHER = lm4flash
 SRCS = $(wildcard src/*.c) \
-	   $(wildcard src/*.s)
+	   $(wildcard src/**/*.c) \
+	   $(wildcard src/*.s) \
+	   $(wildcard src/**/*.s) \
+	   $(wildcard src/*.S) \
+	   $(wildcard src/**/*.S)
+
 OBJ = obj/
 OBJS = $(addprefix $(OBJ),$(filter-out %.c,$(notdir $(SRCS:.s=.o))) $(filter-out %.s,$(notdir $(SRCS:.c=.o))))
 INC = inc/
 LD_SCRIPT = TM4C123GH6PM.ld 
+
 CC = arm-none-eabi-gcc
 LD = arm-none-eabi-ld 
 DEBUGGER = arm-none-eabi-gdb
@@ -23,8 +29,24 @@ all: bin/$(PROJECT).elf
 $(OBJ)%.o: src/%.c        
 	$(MKDIR)             
 	$(CC) -o $@ $< -c -I$(INC) $(CFLAGS) $(DEPFLAGS)
+
+$(OBJ)%.o: src/**/%.c        
+	$(MKDIR)             
+	$(CC) -o $@ $< -c -I$(INC) $(CFLAGS) $(DEPFLAGS)
 	
 $(OBJ)%.o: src/%.s       
+	$(MKDIR)             
+	$(CC) -o $@ $< -c -I$(INC) $(CFLAGS) $(DEPFLAGS)
+
+$(OBJ)%.o: src/**/%.s       
+	$(MKDIR)             
+	$(CC) -o $@ $< -c -I$(INC) $(CFLAGS) $(DEPFLAGS)
+
+$(OBJ)%.o: src/%.S       
+	$(MKDIR)             
+	$(CC) -o $@ $< -c -I$(INC) $(CFLAGS) $(DEPFLAGS)
+
+$(OBJ)%.o: src/**/%.S       
 	$(MKDIR)             
 	$(CC) -o $@ $< -c -I$(INC) $(CFLAGS) $(DEPFLAGS)
 
