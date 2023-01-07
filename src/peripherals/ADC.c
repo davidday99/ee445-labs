@@ -93,7 +93,7 @@ uint16_t ADC_In(void) {
 
 int ADC_Collect(uint32_t channelNum, uint32_t fs,
         uint16_t buffer[], uint32_t numberOfSamples) {
-    if (InitADCTimerTriggeredSeq0(channelNum) || fs == 0)
+    if (!InitADCTimerTriggeredSeq0(channelNum) || fs == 0)
         return 0;
     SampleBuf = buffer;
     SampleBufIndex = 0;
