@@ -10,11 +10,13 @@
 #include "ST7735.h"
 #include "interpreter.h"
 #include "OS.h"
+#include "sema.h"
 
 #define ADC_SAMPLE_COUNT    1000
 #define ADC_SAMPLE_FREQ     2000
 
 uint16_t SampleBuf[ADC_SAMPLE_COUNT];
+char *Input;
 
 //debug code
 int main(void){
@@ -23,7 +25,7 @@ int main(void){
     ST7735_InitR(INITR_GREENTAB);
     OS_InitSysTime();
     ST7735_Message(0, 0, "Hello, world!", 0);
-    
+
     ADC_Open(ADC_CHANNEL11);
     uint16_t s = ADC_In();
 
@@ -39,7 +41,8 @@ int main(void){
     ST7735_Message(1, 1, "System Time: ", OS_ReadPeriodicTime());
 
     while(1){
-        Interpreter_Input("> ");
+        Input = Interpreter_Input("> ");
+        Interpreter_Output(Input);
     }
 }
 

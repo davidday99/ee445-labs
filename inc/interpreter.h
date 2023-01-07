@@ -22,7 +22,7 @@ void Interpreter_Init(void);
 // Input: prompt - NULL-terminated ASCII string to display to user. 
 // Output: const NULL-terminated string
 // ********************************************************
-const char *Interpreter_Input(char *prompt);
+char *Interpreter_Input(char *prompt);
 
 // ************** Interpreter_Output ************************
 // Return output to the user.
