@@ -22,7 +22,7 @@ int main(void){
     OS_InitSysTime();
     ST7735_Message(0, 0, "Hello, world!", 0);
     DebugTools_Init();
-    ST7735_Message(1, 1, "System Time: ", OS_ReadPeriodicTime());
+    ST7735_Message(1, 0, "System Time: ", OS_ReadPeriodicTime());
 
     while(1){
         Input = Interpreter_Input("> ");
