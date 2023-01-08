@@ -9,27 +9,29 @@
 #include "OS.h"
 #include "DebugTools.h"
 
-#define SYSTICK_RELOAD 79      // 1 us period for 80 MHz system clock
-
-static uint32_t SysTimeMicroSeconds;
+#define TIMER_RELOAD 0xFFFFFFFF      // max value 32-bit register can hold 
+#define TIMER_PRESCALE 80            // scale timer down to 1 usec precision at 80 MHz
 
 void OS_InitSysTime(void) {
-    NVIC_ST_CTRL_R &= 0x7;  // clear SysTick control register
-    NVIC_ST_RELOAD_R &= 0x00FFFFFF;
-    NVIC_ST_RELOAD_R = SYSTICK_RELOAD;
-    NVIC_ST_CTRL_R |= 7;  // enable clock with interrupts, clk src is sys clock
-}
-
-void SysTick_Handler(void) {
-    SysTimeMicroSeconds++;
+    SYSCTL_RCGCWTIMER_R |= SYSCTL_RCGCWTIMER_R0;
+    int delay = 0;
+    while (delay++ < 2);
+    WTIMER0_CTL_R &= ~1;  // disable timer
+    WTIMER0_CFG_R = (WTIMER0_CFG_R & ~7) | 4;  // enable 32-bit mode so that we can use a prescaler
+    WTIMER0_TAMR_R = 2;  // count down, periodic mode
+    WTIMER0_TAILR_R = TIMER_RELOAD;
+    WTIMER0_TAPR_R = TIMER_PRESCALE;
+    WTIMER0_IMR_R = 0;
+    WTIMER0_CTL_R |= 1;  // begin counting
 }
 
 void OS_ClearPeriodicTime(void) {
-    SysTimeMicroSeconds = 0;
+    WTIMER0_TAPR_R = TIMER_PRESCALE;
+    WTIMER0_TAV_R = TIMER_RELOAD;
 }
 
 uint32_t OS_ReadPeriodicTime(void) {
-    return SysTimeMicroSeconds;
+    return TIMER_RELOAD - WTIMER0_TAR_R;  // subtract to get elapsed time
 }
 
 int OS_AddPeriodicThread(void (*task)(void), uint32_t period, uint32_t priority) {
