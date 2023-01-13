@@ -9,7 +9,7 @@ SRCS = $(wildcard src/*.c) \
 	   $(wildcard src/**/*.S)
 
 OBJ = obj/
-OBJS = $(addprefix $(OBJ),$(filter-out %.c,$(notdir $(SRCS:.s=.o))) $(filter-out %.s,$(notdir $(SRCS:.c=.o))))
+OBJS = $(addprefix $(OBJ),$(filter-out %.c %.S,$(notdir $(SRCS:.s=.o))) $(filter-out %.s %.S,$(notdir $(SRCS:.c=.o))) $(filter-out %.c %.s,$(notdir $(SRCS:.S=.o))))
 INC = inc/
 LD_SCRIPT = TM4C123GH6PM.ld 
 
