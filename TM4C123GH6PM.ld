@@ -32,9 +32,9 @@ SECTIONS
 
 
     /* 
-     * initial stack pointer pointing to top of stack,starts from higher addresses
-     * i.e ORIGIN(RAM) + LENGTH(RAM)-1 in this case 0x20007FFF to lower addesses i.e
-     * those lesser than 0x20007FFF to 0x2000000,which is the origina address of RAM,
+     * initial stack pointer pointing to top of stack, starts from higher addresses
+     * i.e ORIGIN(RAM) + LENGTH(RAM) in this case 0x20008000 to lower addesses i.e
+     * those lesser than 0x20008000 to 0x2000000,which is the original address of RAM,
      * until it comes in contact with .bss or .data in which case a buffer overflow occurs
     */
     PROVIDE( _stack_ptr = ORIGIN(RAM) + LENGTH(RAM));
