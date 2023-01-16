@@ -8,15 +8,21 @@
 
 static Tcb_Stack_t __attribute__ ((aligned (8))) Threads[THREAD_COUNT];
 static uint16_t InUseBitField;
+static uint32_t Thread_Id;
 
 static int AllocateThread(void);
 
-Tcb_t *Thread_Create() {
+Tcb_Stack_t *Thread_Create() {
     int idx = AllocateThread();
     if (idx < 0) {
         return 0;
     } else {
-        return &Threads[idx].tcb;
+        Threads[idx].tcb.sp = (unsigned long) (&Threads[idx] + sizeof(Tcb_Stack_t));
+        Threads[idx].tcb.id = ++Thread_Id;  // IDs start at 1
+        Threads[idx].tcb.next = Threads[idx].tcb.prev = 0;
+        Threads[idx].tcb.priority = 0;
+        Threads[idx].tcb.state = IDLE;
+        return &Threads[idx];
     } 
 }
 
