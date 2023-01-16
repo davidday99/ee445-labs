@@ -8,9 +8,16 @@
 #include "tm4c123gh6pm.h"
 #include "OS.h"
 #include "DebugTools.h"
+#include "thread.h"
+#include "thread_stack.h"
+#include "sched.h"
+
+extern void thread_switch(Tcb_t *t);
 
 #define TIMER_RELOAD 0xFFFFFFFF      // max value 32-bit register can hold 
 #define TIMER_PRESCALE 80            // scale timer down to 1 usec precision at 80 MHz
+                    
+Tcb_t *RunList;
 
 void OS_InitSysTime(void) {
     SYSCTL_RCGCWTIMER_R |= SYSCTL_RCGCWTIMER_R0;
@@ -34,7 +41,33 @@ uint32_t OS_ReadPeriodicTime(void) {
     return TIMER_RELOAD - WTIMER0_TAR_R;  // subtract to get elapsed time
 }
 
-int OS_AddPeriodicThread(void (*task)(void), uint32_t period, uint32_t priority) {
+
+int OS_AddThread(void(*task)(void), 
+        unsigned long stackSize, unsigned long priority) {
+    Tcb_Stack_t *t = Thread_Create();
+    Tcb_t *tcb = &t->tcb;
+    tcb->priority = priority;
+    Thread_StackInit(t, task);
+    Sched_AddThread(t);
     return 1;
 }
+
+unsigned long OS_Id(void) {
+    Tcb_t *t = Sched_GetCurrentThread();
+    if (t != 0) {
+        return t->id;
+    }
+    return 0;
+}
+
+void OS_Kill(void) {
+    Tcb_t *t = Sched_GetCurrentThread();
+    Sched_RemoveThread(t);
+    Thread_Destroy(t);
+}
+
+void OS_Suspend(void) {
+    
+}
+
 
