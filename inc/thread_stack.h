@@ -4,8 +4,9 @@
 
 #include "thread.h"
 
-uint32_t *Thread_StackInit(Tcb_Stack_t *t,
-                           void (*task)(void));
+uint32_t Thread_StackInit(Tcb_Stack_t *t,
+                           void (*task)(void),
+                           void (*task_ret)(void));
 
 #endif /* __THREAD_STACK_H__ */
 

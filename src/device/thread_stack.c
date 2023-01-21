@@ -2,8 +2,9 @@
 #include "thread_stack.h"
 #include "thread.h"
 
-uint32_t *Thread_StackInit(Tcb_Stack_t *t,
-                           void (*task)(void)) {
+uint32_t Thread_StackInit(Tcb_Stack_t *t,
+                           void (*task)(void),
+                           void (*task_ret)(void)) {
     uint32_t *stackptr;
     stackptr = (uint32_t *) &t->stack[THREAD_MAX_STACK_SIZE];
      
@@ -11,7 +12,7 @@ uint32_t *Thread_StackInit(Tcb_Stack_t *t,
     
     *(--stackptr) = 0x01000000;  // xPSR, thumb mode set
     *(--stackptr) = (unsigned long) task;  // entry point
-    *(--stackptr) = 0;  // no task return at R14 (LR)
+    *(--stackptr) = (unsigned long) task_ret;  // callback if task attempts to return
     *(--stackptr) = 0x12121212UL;  // R12
     *(--stackptr) = 0x03030303UL;  // R0-R3
     *(--stackptr) = 0x02020202UL;

@@ -11,13 +11,21 @@
 #include "thread.h"
 #include "thread_stack.h"
 #include "sched.h"
+#include "semaphore.h"
 
-extern void thread_switch(Tcb_t *t);
+extern void ctx_switch(void);
+extern void enter_task_mode(void);
 
 #define TIMER_RELOAD 0xFFFFFFFF      // max value 32-bit register can hold 
 #define TIMER_PRESCALE 80            // scale timer down to 1 usec precision at 80 MHz
                     
 Tcb_t *RunList;
+
+void idle(void) {
+    while (1) {
+        OS_Suspend();
+    }
+}
 
 void OS_InitSysTime(void) {
     SYSCTL_RCGCWTIMER_R |= SYSCTL_RCGCWTIMER_R0;
@@ -42,13 +50,38 @@ uint32_t OS_ReadPeriodicTime(void) {
 }
 
 
+void OS_InitSemaphore(semaphore_t *semaPt, long value) {
+    semaPt->count = value;
+}   
+
+void OS_Wait(semaphore_t *semaPt) {
+    while (sema_down(&semaPt->count) == 0) {
+        OS_Suspend();
+    }
+}
+
+void OS_Signal(semaphore_t *semaPt) {
+    sema_up(&semaPt->count);
+}
+
+void OS_bWait(semaphore_t *semaPt) {
+    while (sema_down(&semaPt->count) == 0) {
+        OS_Suspend();
+    }
+}
+
+void OS_bSignal(semaphore_t *semaPt) {
+    sema_up(&semaPt->count);
+}
+
 int OS_AddThread(void(*task)(void), 
         unsigned long stackSize, unsigned long priority) {
     Tcb_Stack_t *t = Thread_Create();
     Tcb_t *tcb = &t->tcb;
+    tcb->stk_sz = stackSize;
     tcb->priority = priority;
-    Thread_StackInit(t, task);
-    Sched_AddThread(t);
+    tcb->sp = (uint32_t) Thread_StackInit(t, task, idle);
+    Sched_AddThread(tcb);
     return 1;
 }
 
@@ -67,7 +100,11 @@ void OS_Kill(void) {
 }
 
 void OS_Suspend(void) {
-    
+    ctx_switch(); 
 }
 
+void OS_Launch(unsigned long theTimeSlice) {
+    Sched_ScheduleNextThread();
+    enter_task_mode();
+}
 
