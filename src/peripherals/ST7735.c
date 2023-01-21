@@ -91,7 +91,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "ST7735.h"
-#include "../inc/tm4c123gh6pm.h"
+#include "tm4c123gh6pm.h"
+#include "OS.h"
+#include "semaphore.h"
 
 // 16 rows (0 to 15) and 21 characters (0 to 20)
 // Requires (11 + size*size*6*8) bytes of transmission for each character
@@ -222,8 +224,6 @@ uint16_t StTextColor = ST7735_YELLOW;
 
 #define ST7735_GMCTRP1 0xE0
 #define ST7735_GMCTRN1 0xE1
-
-#define VIRTUAL_DISPLAY_COUNT 4
 
 // standard ascii 5x7 font
 // originally from glcdfont.c from Adafruit project
@@ -502,7 +502,7 @@ static uint8_t Rotation;           // 0 to 3
 static enum initRFlags TabColor;
 static int16_t _width = ST7735_TFTWIDTH;   // this could probably be a constant, except it is used in Adafruit_GFX and depends on image rotation
 static int16_t _height = ST7735_TFTHEIGHT;
-
+static semaphore_t LCDFree;
 
 // The Data/Command pin must be valid when the eighth bit is
 // sent.  The SSI module has hardware input and output FIFOs
@@ -765,6 +765,7 @@ static void commonInit(const uint8_t *cmdList) {
   SSI0_CR1_R |= SSI_CR1_SSE;            // enable SSI
 
   if(cmdList) commandList(cmdList);
+  OS_InitSemaphore(&LCDFree, 1);
 }
 
 
@@ -1582,6 +1583,7 @@ void ST7735_OutString(char *ptr){
 // outputs: none
 void ST7735_Message(int device, int line, char *string, int32_t value) {
     int rowStart;
+    OS_bWait(&LCDFree);
     if (device == 0) {
        rowStart = Top.startY; 
     } else if (device == 1) {
@@ -1592,6 +1594,7 @@ void ST7735_Message(int device, int line, char *string, int32_t value) {
     ST7735_SetCursor(0, rowStart + line); 
     ST7735_OutString(string);
     ST7735_OutUDec(value);
+    OS_bSignal(&LCDFree);
 } 
 
 
