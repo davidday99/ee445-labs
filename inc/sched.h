@@ -6,6 +6,7 @@
 Tcb_t* Sched_GetCurrentThread(void);
 int Sched_AddThread(Tcb_t *t);
 int Sched_RemoveThread(Tcb_t *t);
+void Sched_ScheduleNextThread(void);
 
 #endif /* __SCHED_H__ */
 

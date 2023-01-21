@@ -2,10 +2,10 @@
 #include "thread.h"
 
 Tcb_t *RunningThreadList;
-Tcb_t *CurrentThread;
+Tcb_t *Sched_CurrentThreadPtr;
 
 Tcb_t *Sched_GetCurrentThread(void) {
-    return CurrentThread;
+    return Sched_CurrentThreadPtr;
 }
 
 int Sched_AddThread(Tcb_t *t) {
@@ -44,6 +44,7 @@ int Sched_RemoveThread(Tcb_t *t) {
         next = next->next;
     }
 
+    /* If only one element in list, set list head to null */
     if (next->next == next) {
         RunningThreadList = 0;
     } else {
@@ -57,11 +58,20 @@ int Sched_RemoveThread(Tcb_t *t) {
     }
 
     /* If removing the current thread, update accordingly */
-    if (t == CurrentThread) {
-        CurrentThread = 0;
+    if (t == Sched_CurrentThreadPtr) {
+        Sched_CurrentThreadPtr = 0;
     }
 
     t->state = IDLE;
     return 1;
 }
 
+void Sched_ScheduleNextThread(void) {
+    static Tcb_t *next;
+    if (next == 0) {
+        next = RunningThreadList;
+    } else {
+        next = next->next;
+    }
+    Sched_CurrentThreadPtr = next; 
+}
