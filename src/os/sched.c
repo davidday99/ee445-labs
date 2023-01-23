@@ -1,5 +1,6 @@
 #include "sched.h"
 #include "thread.h"
+#include "debugTools.h"
 
 Tcb_t *RunningThreadList;
 Tcb_t *Sched_CurrentThreadPtr;
@@ -68,6 +69,7 @@ int Sched_RemoveThread(Tcb_t *t) {
 
 void Sched_ScheduleNextThread(void) {
     static Tcb_t *next;
+    DEBUGPIN_PE3 ^= 0x08;
     if (next == 0) {
         next = RunningThreadList;
     } else {
@@ -75,3 +77,4 @@ void Sched_ScheduleNextThread(void) {
     }
     Sched_CurrentThreadPtr = next; 
 }
+

@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "ADC.h"
 #include "tm4c123gh6pm.h"
-#include "DebugTools.h"
+#include "debugTools.h"
 
 #define PORTE_MASK              0x00000010
 #define PORTD_MASK              0x00000008

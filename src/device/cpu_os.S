@@ -7,9 +7,15 @@
 .equ NVIC_PENDSVSET,    0x10000000
 .equ NVIC_PENDSVCLR,    0x08000000
 
+.equ NVIC_ST_CTRL_R,    0xE000E010   
+.equ NVIC_ST_RELOAD_R,  0xE000E014   
+
 .extern             __stack_ptr
 .extern             Sched_CurrentThreadPtr
 .extern             Sched_ScheduleNextThread 
+.extern             OS_TimeSlice
+
+#define OS_PREEMPT
 
 @**************************************************
 @ CPU_OS_EnterTaskMode 
@@ -45,9 +51,9 @@ CPU_OS_EnterTaskMode:
     ISB
 
     LDMFD SP!, {R4-R11}     @ restore r4-r11 and lr from new task stack
-    LDMFD SP!, {R0-R3}          @ restore r0-r3, from now on this will be handled by processor
-    LDMFD SP!, {R12, LR}        @ restore r12 and lr, same as above
-    LDMFD SP!, {R1, R2}         @ load pc and discard PSR
+    LDMFD SP!, {R0-R3}      @ restore r0-r3, from now on this will be handled by processor
+    LDMFD SP!, {R12, LR}    @ restore r12 and lr, same as above
+    LDMFD SP!, {R1, R2}     @ load pc and discard PSR
     CPSIE I
     BX R1
 
@@ -116,6 +122,31 @@ PendSV_Handler:
     MSR PSP, R0     @ update PSP after popping some values
     DSB
     ISB
+
+#if defined (OS_PREEMPT)
+    LDR R0, =NVIC_ST_CTRL_R     @ reenable SysTick timer if OS preemption is enabled
+    LDR R1, [R0]
+    ORR R1, R1, #1
+    STR R1, [R0]
+#endif
+
     POP { R5, R6 }
     BX LR
 
+@**************************************************
+@ SysTick_Handler 
+@ preconditions: CPU is running in task mode 
+@                 
+@ postconditions: CPU jumps to SysTick vector
+@
+@**************************************************
+.global SysTick_Handler
+.type SysTick_Handler, %function
+SysTick_Handler:
+    LDR R0, =NVIC_ST_CTRL_R     @ disable timer while in Handler mode
+    LDR R1, [R0]
+    AND R1, 0xFFFFFFFE
+    STR R1, [R0]
+    
+    B CPU_OS_Trap 
+    
