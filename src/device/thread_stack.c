@@ -18,7 +18,6 @@ uint32_t Thread_StackInit(Tcb_Stack_t *t,
     *(--stackptr) = 0x02020202UL;
     *(--stackptr) = 0x01010101UL;
     *(--stackptr) = 0;
-    *(--stackptr) = 0xFFFFFFFDUL;  // exec return with FP disabled
     *(--stackptr) = 0x11111111UL;  // R4-R11
     *(--stackptr) = 0x10101010UL;
     *(--stackptr) = 0x09090909UL;

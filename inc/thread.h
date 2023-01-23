@@ -17,6 +17,7 @@ typedef struct Tcb {
     uint32_t sp;
     uint32_t id;
     uint16_t stk_sz;
+    void (*exec)(void);
     struct Tcb *prev;
     struct Tcb *next;
     enum Thread_State state;

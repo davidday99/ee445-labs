@@ -13,8 +13,9 @@
 #include "sched.h"
 #include "semaphore.h"
 
-extern void ctx_switch(void);
-extern void enter_task_mode(void);
+void CPU_OS_Trap(void);
+void CPU_OS_EnterTaskMode(void);
+void DisableInterrupts(void);
 
 #define TIMER_RELOAD 0xFFFFFFFF      // max value 32-bit register can hold 
 #define TIMER_PRESCALE 80            // scale timer down to 1 usec precision at 80 MHz
@@ -81,6 +82,7 @@ int OS_AddThread(void(*task)(void),
     tcb->stk_sz = stackSize;
     tcb->priority = priority;
     tcb->sp = (uint32_t) Thread_StackInit(t, task, idle);
+    tcb->exec = task;
     Sched_AddThread(tcb);
     return 1;
 }
@@ -100,11 +102,12 @@ void OS_Kill(void) {
 }
 
 void OS_Suspend(void) {
-    ctx_switch(); 
+    CPU_OS_Trap(); 
 }
 
 void OS_Launch(unsigned long theTimeSlice) {
+    DisableInterrupts();
     Sched_ScheduleNextThread();
-    enter_task_mode();
+    CPU_OS_EnterTaskMode();
 }
 
