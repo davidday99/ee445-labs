@@ -27,8 +27,7 @@ void Thread1(void){
   Count1 = 0;          
   for(;;){
     PE0 ^= 0x01;       // heartbeat
-    Count1++;
-    ST7735_Message(0, 0, "Thread1:", Count1);
+    ST7735_Message(0, 0, "Thread1:", Count1++);
     DebugTools_Init();
     OS_Suspend();      // cooperative multitasking
   }
@@ -38,8 +37,7 @@ void Thread2(void){
   Count2 = 0;          
   for(;;){
     PE1 ^= 0x02;       // heartbeat
-    ST7735_Message(0, 1, "Thread2:", Count2);
-    Count2++;
+    ST7735_Message(0, 1, "Thread2:", Count2++);
     OS_Suspend();      // cooperative multitasking
   }
 }
@@ -48,8 +46,7 @@ void Thread3(void){
   Count3 = 0;          
   for(;;){
     PE2 ^= 0x04;       // heartbeat
-    ST7735_Message(0, 2, "Thread3:", Count3);
-    Count3++;
+    ST7735_Message(0, 2, "Thread3:", Count3++);
     OS_Suspend();      // cooperative multitasking
   }
 }
