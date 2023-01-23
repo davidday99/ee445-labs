@@ -28,7 +28,6 @@ void Thread1(void){
   for(;;){
     PE0 ^= 0x01;       // heartbeat
     ST7735_Message(0, 0, "Thread1:", Count1++);
-    DebugTools_Init();
     OS_Suspend();      // cooperative multitasking
   }
 }
