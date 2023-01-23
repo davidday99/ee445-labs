@@ -9,10 +9,12 @@
 #include <stdint.h>
 #include "semaphore.h"
 
-#define TIME_1MS    80000          
+#define OS_PREEMPT
+
+#define TIME_1MS    80000UL   
 #define TIME_2MS    (2*TIME_1MS)  
 #define TIME_500US  (TIME_1MS/2)  
-#define TIME_250US  (TIME_1MS/5)  
+#define TIME_250US  (TIME_1MS/4)  
 
 // ******** OS_Init ************
 // initialize operating system, disable interrupts until OS_Launch
