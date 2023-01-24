@@ -124,6 +124,12 @@ PendSV_Handler:
     ISB
 
 #if defined (OS_PREEMPT)
+    LDR R0, =NVIC_ST_RELOAD_R   @ reload SysTick timer to give next thread full timeslice
+    MOVW R1, #:lower16:OS_TimeSlice
+    MOVT R1, #:upper16:OS_TimeSlice
+    LDR R2, [R1]
+    STR R2, [R0]
+
     LDR R0, =NVIC_ST_CTRL_R     @ reenable SysTick timer if OS preemption is enabled
     LDR R1, [R0]
     ORR R1, R1, #1
