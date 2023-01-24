@@ -41,20 +41,17 @@ void Interpreter_Output(char *string) {
     const char *cmd = ArgBuf[0];
 
     if (ArgBuf[0] == 0) {
-        OS_bSignal(&SerialOutFree);
-        return;
+        goto done;
     }
 
     for (unsigned long i = 0; i < CommandCount; i++) {
         if (strcmp(cmd, Commands[i].cmd[0]) == 0) {
             Commands[i].exec(argc, ArgBuf); 
-            UART_OutCRLF();
-            ClearArgs();
-            OS_bSignal(&SerialOutFree);
-            return;
+            goto done;
         }
     }
     UART_OutString("Command not supported.");
+done:
     UART_OutCRLF();
     ClearArgs();
     OS_bSignal(&SerialOutFree);
