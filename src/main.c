@@ -48,6 +48,14 @@ void Thread3(void){
   }
 }
 
+void SerialIO(void) {
+    char *input;
+    for (;;) {
+        input = Interpreter_Input("> ");
+        Interpreter_Output(input);
+    }
+}
+
 int main(void){
     PLL_Init(Bus80MHz);
     Interpreter_Init();
@@ -60,7 +68,8 @@ int main(void){
     NumCreated += OS_AddThread(Thread1, 100, 1);
     NumCreated += OS_AddThread(Thread2, 100, 1);
     NumCreated += OS_AddThread(Thread3, 100, 1);
+    NumCreated += OS_AddThread(SerialIO, 100, 1);
 
-    OS_Launch(TIME_2MS);
+    OS_Launch(TIME_1MS);
 }
 
