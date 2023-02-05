@@ -45,16 +45,18 @@
 // hardware connections
 // **********ST7735 TFT and SDC*******************
 // ST7735
-// Backlight (pin 10) connected to +3.3 V
-// MISO (pin 9) unconnected
-// SCK (pin 8) connected to PA2 (SSI0Clk)
-// MOSI (pin 7) connected to PA5 (SSI0Tx)
-// TFT_CS (pin 6) connected to PA3 (SSI0Fss)
-// CARD_CS (pin 5) unconnected
-// Data/Command (pin 4) connected to PA6 (GPIO), high for data, low for command
-// RESET (pin 3) connected to PA7 (GPIO)
-// VCC (pin 2) connected to +3.3 V
-// Gnd (pin 1) connected to ground
+// Vin      (pin 10) NC
+// 3v3      (pin 9) connected to +3.3V
+// Gnd      (pin 8) connected to ground
+// SCK      (pin 7) connected to PA2 (SSI0Clk)
+// SO       (pin 6) 
+// SI       (pin 5) connected to PA5 (SSI0Tx)
+// TCS      (pin 4) connected to PA3 (SSI0Fss)
+// RESET    (pin 3) connected to PA7 (GPIO)
+// D/C      (pin 2) connected to PA6 (GPIO)
+// CCS      (pin 1) NC
+// Lite     (pin 0) NC
+
 
 // **********wide.hk ST7735R with ADXL345 accelerometer *******************
 // Silkscreen Label (SDC side up; LCD side down) - Connection
