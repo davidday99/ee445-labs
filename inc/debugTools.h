@@ -11,7 +11,7 @@
 #define DEBUGPIN_HIGH()     (GPIO_PORTB_DATA_R |= 8)
 #define DEBUGPIN_LOW()      (GPIO_PORTB_DATA_R &= ~8)
 
-#define DEBUGPIN_PB3  (*((volatile unsigned long *)0x4000520))
+#define DEBUGPIN_PB3  (*((volatile unsigned long *)0x40005020))
 
 #define DEBUGPIN_PE0  (*((volatile unsigned long *)0x40024004))
 #define DEBUGPIN_PE1  (*((volatile unsigned long *)0x40024008))
